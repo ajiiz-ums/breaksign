@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BREAKSIGN — Breaking the Silence</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,wght@0,300;0,700;1,300;1,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0f1e;
+  --surface: #111827;
+  --card: #1a2235;
+  --card2: #1e2a40;
+  --border: rgba(255,255,255,0.08);
+  --teal: #2dd4bf;
+  --teal-dim: rgba(45,212,191,0.12);
+  --blue: #60a5fa;
+  --purple: #a78bfa;
+  --pink: #f472b6;
+  --amber: #fbbf24;
+  --green: #34d399;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --r: 14px;
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --serif: 'Fraunces', Georgia, serif;
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;line-height:1.6;}
+a{text-decoration:none;color:inherit;}
+button{cursor:pointer;font-family:var(--font);}
+ul{list-style:none;}
+
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--card2);border-radius:99px;}
+
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:.025;pointer-events:none;z-index:0;
+}
+
+.amb{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0;}
+.amb-1{width:600px;height:600px;background:rgba(45,212,191,.07);top:-200px;left:-100px;animation:pulse 8s ease-in-out infinite alternate;}
+.amb-2{width:500px;height:500px;background:rgba(96,165,250,.06);bottom:-100px;right:-100px;animation:pulse 10s ease-in-out infinite alternate;}
+.amb-3{width:400px;height:400px;background:rgba(167,139,250,.05);top:40%;left:40%;animation:pulse 12s ease-in-out infinite alternate;}
+@keyframes pulse{from{transform:scale(1);}to{transform:scale(1.2);}}
+
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;padding:0 48px;height:64px;
+  background:rgba(10,15,30,.8);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{display:flex;align-items:center;gap:10px;margin-right:auto;}
+.logo-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,var(--teal),var(--blue));
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:800;color:#0a0f1e;
+}
+.logo-text{font-weight:800;font-size:16px;letter-spacing:1px;}
+.logo-text span{color:var(--teal);}
+.nav-tabs{display:flex;gap:4px;}
+.nav-tab{
+  padding:7px 16px;border-radius:8px;
+  font-size:13px;font-weight:500;color:var(--muted);
+  background:none;border:none;transition:all .2s;
+}
+.nav-tab:hover,.nav-tab.active{color:var(--text);background:var(--card);}
+.nav-tab.active{color:var(--teal);}
+.nav-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
+.live-badge{
+  display:flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:99px;
+  background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25);
+  color:#4ade80;font-size:12px;font-weight:600;
+}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;animation:blink 1.2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.btn-sm{
+  padding:7px 18px;border-radius:8px;border:none;
+  background:var(--teal);color:#0a0f1e;
+  font-size:13px;font-weight:700;transition:all .2s;
+}
+.btn-sm:hover{background:#5eead4;transform:translateY(-1px);}
+
+.page{display:none;position:relative;z-index:1;}
+.page.active{display:block;}
+
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:100px 48px 80px;text-align:center;position:relative;z-index:1;
+}
+.hero-label{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 16px;border-radius:99px;
+  background:var(--teal-dim);border:1px solid rgba(45,212,191,.25);
+  color:var(--teal);font-size:12px;font-weight:600;letter-spacing:.5px;margin-bottom:28px;
+}
+.hero h1{
+  font-family:var(--serif);
+  font-size:clamp(48px,7vw,88px);font-weight:700;
+  line-height:1.05;letter-spacing:-2px;color:#fff;
+  max-width:900px;margin-bottom:16px;
+}
+.hero h1 em{font-style:italic;color:var(--teal);}
+.hero-sub{font-size:18px;color:var(--muted);max-width:560px;margin:0 auto 40px;line-height:1.7;}
+.hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{
+  padding:14px 32px;border-radius:10px;border:none;
+  background:var(--teal);color:#0a0f1e;
+  font-family:var(--font);font-size:15px;font-weight:700;transition:all .2s;
+}
+.btn-primary:hover{background:#5eead4;transform:translateY(-2px);box-shadow:0 8px 30px rgba(45,212,191,.3);}
+.btn-outline{
+  padding:14px 32px;border-radius:10px;
+  border:1px solid var(--border);background:none;
+  color:var(--muted);font-family:var(--font);font-size:15px;font-weight:500;transition:all .2s;
+}
+.btn-outline:hover{color:var(--text);border-color:rgba(255,255,255,.2);}
+.hero-scroll{
+  position:absolute;bottom:40px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  color:var(--muted);font-size:12px;
+}
+.scroll-line{width:1px;height:40px;background:linear-gradient(to bottom,var(--teal),transparent);animation:scrollAnim 2s ease-in-out infinite;}
+@keyframes scrollAnim{0%{transform:scaleY(0);transform-origin:top;}50%{transform:scaleY(1);}100%{transform:scaleY(0);transform-origin:bottom;}}
+
+.fitur-wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 48px 80px;}
+.section-label{font-size:11px;text-transform:uppercase;letter-spacing:3px;color:var(--teal);font-weight:600;margin-bottom:12px;}
+.section-title{font-family:var(--serif);font-size:36px;font-weight:700;color:#fff;margin-bottom:40px;letter-spacing:-1px;}
+
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.feat-card{background:var(--card);border:1px solid var(--border);padding:32px 28px;transition:all .2s;}
+.feat-card:nth-child(1){border-radius:var(--r) 0 0 0;}
+.feat-card:nth-child(2){border-radius:0;}
+.feat-card:nth-child(3){border-radius:0 var(--r) 0 0;}
+.feat-card:nth-child(4){border-radius:0 0 0 var(--r);}
+.feat-card:nth-child(5){border-radius:0;}
+.feat-card:nth-child(6){border-radius:0 0 var(--r) 0;}
+.feat-card:hover{background:var(--card2);transform:translateY(-3px);}
+.feat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;}
+.feat-card h3{font-size:16px;font-weight:700;color:#fff;margin-bottom:8px;}
+.feat-card p{font-size:13px;color:var(--muted);line-height:1.7;}
+
+.totalsign-section{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 48px 80px;}
+.totalsign-grid{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:40px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;}
+.tsign-left h3{font-family:var(--serif);font-size:28px;color:#fff;margin-bottom:12px;}
+.tsign-left p{color:var(--muted);font-size:14px;line-height:1.8;margin-bottom:24px;}
+.tsign-channels{display:flex;flex-direction:column;gap:12px;}
+.ch{display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid var(--border);font-size:14px;}
+.ch-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.ch span{color:var(--text);font-weight:500;}
+.ch small{color:var(--muted);font-size:12px;margin-left:auto;}
+.tsign-right{display:flex;flex-direction:column;gap:16px;}
+.tsign-preview{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center;position:relative;overflow:hidden;}
+.word-display{font-family:var(--serif);font-size:42px;font-weight:700;color:var(--teal);margin-bottom:8px;}
+.word-ipa{font-size:14px;color:var(--muted);margin-bottom:16px;}
+.sign-anim{font-size:64px;display:block;animation:signBounce 2s ease-in-out infinite;}
+@keyframes signBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.word-def{font-size:13px;color:var(--muted);line-height:1.6;margin-top:12px;}
+.word-controls{display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap;}
+.wc-btn{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:12px;font-weight:500;transition:all .15s;}
+.wc-btn:hover,.wc-btn.on{background:var(--teal-dim);border-color:rgba(45,212,191,.3);color:var(--teal);}
+
+.materi-layout{padding-top:64px;display:grid;grid-template-columns:260px 1fr;min-height:100vh;}
+.materi-sidebar{background:var(--surface);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto;}
+.sidebar-section{margin-bottom:24px;}
+.sidebar-section-title{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);padding:0 8px;margin-bottom:8px;font-weight:600;}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .15s;border:none;background:none;width:100%;text-align:left;}
+.sidebar-item:hover{color:var(--text);background:rgba(255,255,255,.04);}
+.sidebar-item.active{color:var(--teal);background:var(--teal-dim);}
+.sidebar-item .si-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;background:rgba(255,255,255,.05);}
+.si-badge{margin-left:auto;font-size:10px;padding:2px 7px;border-radius:99px;background:var(--teal-dim);color:var(--teal);}
+.progress-mini{height:3px;background:rgba(255,255,255,.06);border-radius:99px;margin-top:6px;}
+.progress-mini-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--teal),var(--blue));}
+.materi-main{padding:40px;overflow-y:auto;}
+.materi-header{margin-bottom:32px;}
+.materi-header h2{font-family:var(--serif);font-size:32px;font-weight:700;color:#fff;margin-bottom:8px;}
+.materi-header p{color:var(--muted);font-size:14px;}
+.progress-bar{height:6px;background:rgba(255,255,255,.06);border-radius:99px;margin-bottom:8px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--teal),var(--blue));width:35%;transition:width .5s ease;}
+.progress-label{font-size:12px;color:var(--muted);}
+
+.vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:40px;}
+.vocab-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.vocab-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--teal),var(--blue));opacity:0;transition:opacity .2s;}
+.vocab-card:hover{border-color:rgba(45,212,191,.3);background:var(--card2);}
+.vocab-card:hover::before{opacity:1;}
+.vocab-card.learned{border-color:rgba(52,211,153,.3);}
+.vocab-card.learned::after{content:'✓';position:absolute;top:10px;right:12px;color:var(--green);font-size:14px;font-weight:700;}
+.vc-sign{font-size:36px;display:block;margin-bottom:10px;}
+.vc-word{font-size:20px;font-weight:700;color:#fff;margin-bottom:4px;}
+.vc-ipa{font-size:12px;color:var(--muted);margin-bottom:8px;}
+.vc-def{font-size:12px;color:var(--muted);line-height:1.5;}
+.vc-cats{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.vc-cat{font-size:10px;padding:2px 8px;border-radius:99px;font-weight:600;}
+
+.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px;max-width:500px;width:90%;position:relative;animation:modalIn .25s ease;}
+@keyframes modalIn{from{opacity:0;transform:scale(.95);}to{opacity:1;transform:scale(1);}}
+.modal-close{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.06);border:none;color:var(--muted);font-size:18px;transition:all .15s;}
+.modal-close:hover{background:rgba(255,255,255,.1);color:var(--text);}
+.modal-sign{font-size:80px;display:block;text-align:center;margin-bottom:16px;animation:signBounce 2s ease-in-out infinite;}
+.modal-word{font-family:var(--serif);font-size:40px;font-weight:700;color:var(--teal);text-align:center;margin-bottom:6px;}
+.modal-ipa{text-align:center;color:var(--muted);font-size:14px;margin-bottom:24px;}
+.modal-channels{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.mc{padding:12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--border);text-align:center;}
+.mc-icon{font-size:24px;display:block;margin-bottom:6px;}
+.mc-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.mc-val{font-size:13px;color:var(--text);font-weight:500;margin-top:2px;}
+.modal-desc{font-size:14px;color:var(--muted);line-height:1.7;border-top:1px solid var(--border);padding-top:16px;}
+.modal-actions{display:flex;gap:10px;margin-top:20px;}
+.btn-mark{flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);font-size:13px;font-weight:600;transition:all .15s;}
+.btn-mark:hover{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.3);color:var(--green);}
+
+.latihan-wrap{padding:40px;padding-top:104px;max-width:800px;margin:0 auto;}
+.quiz-header{margin-bottom:40px;}
+.quiz-header h2{font-family:var(--serif);font-size:32px;color:#fff;margin-bottom:8px;}
+.quiz-progress{display:flex;align-items:center;gap:14px;margin-top:16px;}
+.qprog-bar{flex:1;height:6px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden;}
+.qprog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--teal),var(--blue));transition:width .4s ease;}
+.qprog-label{font-size:13px;color:var(--muted);}
+.quiz-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px;animation:fadeSlide .3s ease;}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.quiz-type-badge{display:inline-block;padding:4px 12px;border-radius:99px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;}
+.quiz-sign-display{font-size:80px;display:block;text-align:center;margin-bottom:8px;animation:signBounce 2s ease-in-out infinite;}
+.quiz-q{font-size:18px;color:var(--text);font-weight:600;text-align:center;margin-bottom:8px;}
+.quiz-hint{font-size:13px;color:var(--muted);text-align:center;margin-bottom:32px;}
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.opt-btn{padding:16px 20px;border-radius:12px;border:1.5px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);font-family:var(--font);font-size:15px;font-weight:500;text-align:left;transition:all .15s;}
+.opt-btn:hover:not(:disabled){background:var(--teal-dim);border-color:rgba(45,212,191,.3);color:var(--teal);}
+.opt-btn.correct{background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.4);color:var(--green);}
+.opt-btn.wrong{background:rgba(244,114,182,.1);border-color:rgba(244,114,182,.3);color:var(--pink);}
+.opt-btn:disabled{cursor:default;}
+.quiz-feedback{margin-top:24px;padding:16px 20px;border-radius:10px;font-size:14px;font-weight:500;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.ok{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);color:var(--green);}
+.quiz-feedback.ko{background:rgba(244,114,182,.1);border:1px solid rgba(244,114,182,.25);color:var(--pink);}
+.quiz-next{margin-top:20px;width:100%;padding:14px;border-radius:10px;border:none;background:var(--teal);color:#0a0f1e;font-family:var(--font);font-size:15px;font-weight:700;transition:all .2s;display:none;}
+.quiz-next.show{display:block;}
+.quiz-next:hover{background:#5eead4;}
+.score-panel{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:48px;text-align:center;display:none;}
+.score-panel.show{display:block;}
+.score-num{font-family:var(--serif);font-size:80px;font-weight:700;color:var(--teal);}
+.score-label{color:var(--muted);font-size:16px;margin-bottom:32px;}
+.score-stats{display:flex;gap:32px;justify-content:center;margin-bottom:32px;}
+.ss{display:flex;flex-direction:column;gap:4px;}
+.ss-n{font-size:28px;font-weight:700;color:#fff;}
+.ss-l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+
+.live-wrap{padding:40px;padding-top:104px;max-width:900px;margin:0 auto;}
+.live-header{margin-bottom:32px;}
+.live-header h2{font-family:var(--serif);font-size:32px;color:#fff;margin-bottom:8px;}
+.live-header p{color:var(--muted);font-size:14px;}
+.live-earbuds{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:28px;margin-bottom:24px;display:flex;align-items:center;gap:24px;}
+.earbuds-icon{width:72px;height:72px;border-radius:16px;flex-shrink:0;background:linear-gradient(135deg,var(--purple),var(--blue));display:flex;align-items:center;justify-content:center;font-size:36px;}
+.earbuds-info h3{font-size:16px;font-weight:700;color:#fff;margin-bottom:4px;}
+.earbuds-info p{font-size:13px;color:var(--muted);}
+.earbuds-status{display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;}
+.ebs{display:flex;align-items:center;gap:6px;font-size:12px;}
+.ebs-dot{width:8px;height:8px;border-radius:50%;}
+.ebs-dot.active{background:var(--green);box-shadow:0 0 6px rgba(52,211,153,.5);}
+.ebs-dot.inactive{background:var(--muted);}
+.live-mic-btn{margin-left:auto;flex-shrink:0;width:64px;height:64px;border-radius:50%;border:none;font-size:28px;transition:all .3s;}
+.live-mic-btn.off{background:var(--card2);}
+.live-mic-btn.on{background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 0 0 0 rgba(239,68,68,.4);animation:micPulse 1.5s ease-in-out infinite;}
+@keyframes micPulse{0%{box-shadow:0 0 0 0 rgba(239,68,68,.4);}70%{box-shadow:0 0 0 16px rgba(239,68,68,0);}100%{box-shadow:0 0 0 0 rgba(239,68,68,0);}}
+.live-output{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.live-output-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.live-output-header span{font-size:13px;font-weight:600;color:var(--text);}
+.live-output-body{padding:24px;min-height:200px;}
+.transcript-text{font-size:16px;line-height:1.9;color:var(--text);word-break:break-word;}
+.transcript-word{display:inline;padding:0 2px;border-radius:4px;transition:background .3s;}
+.transcript-word.highlight{background:rgba(45,212,191,.2);color:var(--teal);}
+.transcript-placeholder{color:var(--muted);font-size:14px;font-style:italic;}
+.live-sign-row{display:flex;gap:8px;padding:16px 20px;border-top:1px solid var(--border);flex-wrap:wrap;overflow-x:auto;min-height:80px;}
+.sign-chip{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;border-radius:10px;background:var(--card2);border:1px solid var(--border);min-width:64px;text-align:center;animation:chipIn .2s ease;}
+@keyframes chipIn{from{opacity:0;transform:scale(.8);}to{opacity:1;transform:scale(1);}}
+.sign-chip .sc-sign{font-size:24px;}
+.sign-chip .sc-word{font-size:10px;color:var(--muted);}
+.live-controls{display:flex;gap:10px;padding:16px 20px;border-top:1px solid var(--border);}
+.lc-btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);font-size:13px;font-weight:500;transition:all .15s;}
+.lc-btn:hover{color:var(--text);border-color:rgba(255,255,255,.2);}
+.lc-btn.danger:hover{color:var(--pink);border-color:rgba(244,114,182,.3);}
+
+.progres-wrap{padding:40px;padding-top:104px;max-width:1000px;margin:0 auto;}
+.progres-header{margin-bottom:32px;}
+.progres-header h2{font-family:var(--serif);font-size:32px;color:#fff;margin-bottom:8px;}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:32px;}
+.stat-block{background:var(--card);border:1px solid var(--border);padding:24px 20px;}
+.stat-block:first-child{border-radius:var(--r) 0 0 var(--r);}
+.stat-block:last-child{border-radius:0 var(--r) var(--r) 0;}
+.sb-icon{font-size:24px;margin-bottom:10px;}
+.sb-num{font-family:var(--serif);font-size:36px;font-weight:700;color:var(--teal);line-height:1;}
+.sb-lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+.activity-row{display:grid;grid-template-columns:2fr 1fr;gap:24px;margin-bottom:32px;}
+.chart-box{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;}
+.chart-title{font-size:14px;font-weight:600;color:#fff;margin-bottom:20px;}
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px;}
+.bc-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.bc-bar{width:100%;border-radius:4px 4px 0 0;background:linear-gradient(to top,var(--teal),var(--blue));opacity:.7;transition:opacity .2s;min-height:4px;}
+.bc-bar:hover{opacity:1;}
+.bc-label{font-size:10px;color:var(--muted);}
+.streak-box{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;}
+.streak-num{font-family:var(--serif);font-size:64px;font-weight:700;color:var(--amber);line-height:1;}
+.streak-label{color:var(--muted);font-size:13px;}
+.streak-fire{font-size:32px;animation:fireShake .5s ease-in-out infinite alternate;}
+@keyframes fireShake{from{transform:rotate(-5deg);}to{transform:rotate(5deg);}}
+.level-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.level-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;}
+.li-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.li-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.li-name{font-size:14px;font-weight:600;color:#fff;}
+.li-level{font-size:12px;color:var(--muted);}
+.li-bar{height:6px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden;}
+.li-fill{height:100%;border-radius:99px;transition:width .5s ease;}
+
+@media(max-width:900px){
+  nav{padding:0 20px;}
+  .nav-tabs{display:none;}
+  .hero{padding:90px 20px 60px;}
+  .fitur-wrap,.totalsign-section{padding:0 20px 60px;}
+  .feature-grid{grid-template-columns:1fr 1fr;}
+  .totalsign-grid{grid-template-columns:1fr;}
+  .materi-layout{grid-template-columns:1fr;}
+  .materi-sidebar{display:none;}
+  .materi-main{padding:20px;}
+  .latihan-wrap,.live-wrap,.progres-wrap{padding:20px;padding-top:84px;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .activity-row{grid-template-columns:1fr;}
+  .options-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="amb amb-1"></div>
+<div class="amb amb-2"></div>
+<div class="amb amb-3"></div>
+
+<nav>
+  <div class="nav-logo">
+    <div class="logo-icon">B</div>
+    <div class="logo-text">BREAK<span>SIGN</span></div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('beranda',this)">Beranda</button>
+    <button class="nav-tab" onclick="showPage('materi',this)">Materi</button>
+    <button class="nav-tab" onclick="showPage('latihan',this)">Latihan</button>
+    <button class="nav-tab" onclick="showPage('live',this)">Live Transcription</button>
+    <button class="nav-tab" onclick="showPage('progres',this)">Progres</button>
+  </div>
+  <div class="nav-right">
+    <div class="live-badge"><div class="live-dot"></div>Smart Earbuds</div>
+    <button class="btn-sm" onclick="showPage('materi',document.querySelectorAll('.nav-tab')[1])">Mulai Belajar</button>
+  </div>
+</nav>
+
+<!-- BERANDA -->
+<div id="page-beranda" class="page active">
+  <section class="hero">
+    <div class="hero-label">🤟 TOTAL-SIGN · Breaking the Silence</div>
+    <h1>Belajar Bahasa Inggris<br>dengan <em>Semua Indra</em></h1>
+    <p class="hero-sub">Platform pembelajaran inklusif berbasis TOTAL-SIGN untuk siswa disabilitas rungu wicara — bahasa isyarat, visual, teks, dan audio dalam satu layar.</p>
+    <div class="hero-cta">
+      <button class="btn-primary" onclick="showPage('materi',document.querySelectorAll('.nav-tab')[1])">🎓 Mulai Belajar</button>
+      <button class="btn-outline" onclick="showPage('live',document.querySelectorAll('.nav-tab')[3])">🎧 Coba Live Transcription</button>
+    </div>
+    <div class="hero-scroll"><div class="scroll-line"></div><span>scroll</span></div>
+  </section>
+
+  <div class="fitur-wrap">
+    <div class="section-label">Fitur Utama</div>
+    <div class="section-title">Semua yang kamu butuhkan</div>
+    <div class="feature-grid">
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(45,212,191,.12);">🤟</div>
+        <h3>Bahasa Isyarat</h3>
+        <p>Setiap kata ditampilkan dengan animasi gerakan tangan dan artikulasi bibir secara real-time.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(96,165,250,.12);">🎨</div>
+        <h3>Visual & Ilustrasi</h3>
+        <p>Gambar dan animasi kontekstual membantu pemahaman makna kata secara visual.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(167,139,250,.12);">🎮</div>
+        <h3>Game Edukatif</h3>
+        <p>Kuis interaktif dan game untuk melatih kosakata dengan cara yang menyenangkan.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(251,191,36,.12);">🎧</div>
+        <h3>Smart Earbuds</h3>
+        <p>Perangkat IoT yang menangkap suara sekitar dan mengirimkannya ke aplikasi secara real-time.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(244,114,182,.12);">⚡</div>
+        <h3>Live Transcription</h3>
+        <p>Suara dari lingkungan sekitar langsung diterjemahkan menjadi teks, isyarat, dan visual.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(52,211,153,.12);">📊</div>
+        <h3>Pantau Progres</h3>
+        <p>AI memantau dan menyesuaikan materi berdasarkan gaya belajar dominan kamu.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="totalsign-section">
+    <div class="section-label">Pendekatan TOTAL-SIGN</div>
+    <div class="section-title">Satu kata, semua kanal</div>
+    <div class="totalsign-grid">
+      <div class="tsign-left">
+        <h3>Multi-Kanal Representasi</h3>
+        <p>TOTAL-SIGN menggabungkan berbagai bentuk komunikasi dalam satu tampilan, sehingga siswa dapat memilih kanal yang paling sesuai dengan karakteristik belajar mereka.</p>
+        <div class="tsign-channels">
+          <div class="ch"><div class="ch-icon" style="background:rgba(45,212,191,.15);">🤟</div><span>Bahasa Isyarat</span><small>Gerakan tangan</small></div>
+          <div class="ch"><div class="ch-icon" style="background:rgba(96,165,250,.15);">👄</div><span>Artikulasi Bibir</span><small>Gerakan mulut</small></div>
+          <div class="ch"><div class="ch-icon" style="background:rgba(167,139,250,.15);">🖼️</div><span>Ilustrasi Visual</span><small>Gambar konteks</small></div>
+          <div class="ch"><div class="ch-icon" style="background:rgba(251,191,36,.15);">📝</div><span>Teks</span><small>Tulisan & IPA</small></div>
+          <div class="ch"><div class="ch-icon" style="background:rgba(244,114,182,.15);">🔊</div><span>Audio</span><small>Dapat dimatikan</small></div>
+        </div>
+      </div>
+      <div class="tsign-right">
+        <div class="tsign-preview">
+          <div class="word-display" id="demo-word">Hello</div>
+          <div class="word-ipa">/həˈloʊ/ · Sapaan</div>
+          <span class="sign-anim" id="demo-sign">👋</span>
+          <div class="word-def">Digunakan untuk menyapa atau menarik perhatian seseorang. Isyarat: Angkat tangan dan kibaskan.</div>
+          <div class="word-controls">
+            <button class="wc-btn on" id="ch-sign" onclick="toggleChannel('sign')">🤟 Isyarat</button>
+            <button class="wc-btn on" id="ch-visual" onclick="toggleChannel('visual')">🖼️ Visual</button>
+            <button class="wc-btn on" id="ch-text" onclick="toggleChannel('text')">📝 Teks</button>
+            <button class="wc-btn" id="ch-audio" onclick="toggleChannel('audio')">🔊 Audio</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="wc-btn" onclick="demoWord('Hello','👋','Digunakan untuk menyapa seseorang.')">Hello</button>
+          <button class="wc-btn" onclick="demoWord('School','🏫','Tempat belajar dan mendapatkan pendidikan.')">School</button>
+          <button class="wc-btn" onclick="demoWord('Family','👨‍👩‍👧','Orang-orang yang tinggal bersama dan saling menyayangi.')">Family</button>
+          <button class="wc-btn" onclick="demoWord('Book','📚','Kumpulan halaman berisi teks dan informasi.')">Book</button>
+          <button class="wc-btn" onclick="demoWord('Water','💧','Cairan bening tidak berwarna, sangat penting bagi kehidupan.')">Water</button>
+          <button class="wc-btn" onclick="demoWord('Happy','😊','Perasaan senang dan bahagia.')">Happy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MATERI -->
+<div id="page-materi" class="page">
+  <div class="materi-layout">
+    <aside class="materi-sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Unit Pembelajaran</div>
+        <button class="sidebar-item active" onclick="setUnit(this,'Kosakata Dasar')">
+          <div class="si-icon">📘</div>Kosakata Dasar<span class="si-badge">12 kata</span>
+        </button>
+        <button class="sidebar-item" onclick="setUnit(this,'Salam & Sapaan')">
+          <div class="si-icon">👋</div>Salam & Sapaan<span class="si-badge">8 kata</span>
+        </button>
+        <button class="sidebar-item" onclick="setUnit(this,'Kehidupan Sehari-hari')">
+          <div class="si-icon">🏠</div>Kehidupan Sehari-hari<span class="si-badge">15 kata</span>
+        </button>
+        <button class="sidebar-item" onclick="setUnit(this,'Sekolah & Belajar')">
+          <div class="si-icon">🎒</div>Sekolah & Belajar<span class="si-badge">10 kata</span>
+        </button>
+        <button class="sidebar-item" onclick="setUnit(this,'Angka & Warna')">
+          <div class="si-icon">🔢</div>Angka & Warna<span class="si-badge">20 kata</span>
+        </button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Progres Kamu</div>
+        <div style="padding:0 8px;">
+          <div style="margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:var(--muted)">Kosakata Dasar</span><span style="color:var(--teal)">4/12</span></div>
+            <div class="progress-mini"><div class="progress-mini-fill" style="width:33%"></div></div>
+          </div>
+          <div style="margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:var(--muted)">Salam & Sapaan</span><span style="color:var(--teal)">6/8</span></div>
+            <div class="progress-mini"><div class="progress-mini-fill" style="width:75%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:var(--muted)">Sekolah & Belajar</span><span style="color:var(--teal)">2/10</span></div>
+            <div class="progress-mini"><div class="progress-mini-fill" style="width:20%"></div></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+    <div class="materi-main">
+      <div class="materi-header">
+        <h2 id="unit-title">Kosakata Dasar</h2>
+        <p>Klik kartu kata untuk melihat detail, bahasa isyarat, dan semua kanal TOTAL-SIGN</p>
+        <div style="margin-top:16px;">
+          <div class="progress-bar"><div class="progress-fill" id="materi-progress"></div></div>
+          <div class="progress-label">4 dari 12 kata dipelajari</div>
+        </div>
+      </div>
+      <div class="vocab-grid" id="vocab-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LATIHAN -->
+<div id="page-latihan" class="page">
+  <div class="latihan-wrap">
+    <div class="quiz-header">
+      <h2>Latihan Kosakata</h2>
+      <p style="color:var(--muted);font-size:14px;">Uji pemahamanmu dengan kuis interaktif berbasis bahasa isyarat</p>
+      <div class="quiz-progress">
+        <div class="qprog-bar"><div class="qprog-fill" id="quiz-progress-fill" style="width:0%"></div></div>
+        <span class="qprog-label" id="quiz-progress-label">0 / 8</span>
+      </div>
+    </div>
+    <div class="quiz-card" id="quiz-card"></div>
+    <div class="score-panel" id="score-panel">
+      <div class="score-num" id="score-num">0</div>
+      <div class="score-label">dari 8 pertanyaan benar 🎉</div>
+      <div class="score-stats">
+        <div class="ss"><div class="ss-n" id="score-correct">0</div><div class="ss-l">Benar</div></div>
+        <div class="ss"><div class="ss-n" id="score-wrong">0</div><div class="ss-l">Salah</div></div>
+        <div class="ss"><div class="ss-n" id="score-pct">0%</div><div class="ss-l">Skor</div></div>
+      </div>
+      <button class="btn-primary" onclick="restartQuiz()">🔄 Ulangi Latihan</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIVE TRANSCRIPTION -->
+<div id="page-live" class="page">
+  <div class="live-wrap">
+    <div class="live-header">
+      <h2>Live Transcription</h2>
+      <p>Smart Earbuds menangkap suara sekitar dan menerjemahkannya menjadi teks + bahasa isyarat secara real-time.</p>
+    </div>
+    <div class="live-earbuds">
+      <div class="earbuds-icon">🎧</div>
+      <div class="earbuds-info">
+        <h3>Smart Earbuds BREAKSIGN</h3>
+        <p>Perangkat IoT untuk deteksi suara real-time terintegrasi dengan AI</p>
+        <div class="earbuds-status">
+          <div class="ebs"><div class="ebs-dot active"></div><span style="color:var(--muted);font-size:12px;">Bluetooth Terhubung</span></div>
+          <div class="ebs"><div class="ebs-dot active"></div><span style="color:var(--muted);font-size:12px;">Baterai 87%</span></div>
+          <div class="ebs"><div class="ebs-dot" id="haptic-dot"></div><span style="color:var(--muted);font-size:12px;">Haptic Feedback</span></div>
+          <div class="ebs"><div class="ebs-dot active"></div><span style="color:var(--muted);font-size:12px;">AI Processing</span></div>
+        </div>
+      </div>
+      <button class="live-mic-btn off" id="mic-btn" onclick="toggleMic()">🎙️</button>
+    </div>
+    <div class="live-output">
+      <div class="live-output-header">
+        <span>📝 Transkrip Real-Time</span>
+        <span id="live-status" style="margin-left:auto;font-size:12px;color:var(--muted);">Menunggu aktivasi...</span>
+      </div>
+      <div class="live-output-body">
+        <div id="transcript-container">
+          <div class="transcript-placeholder" id="transcript-placeholder">Tekan tombol mikrofon untuk memulai live transcription. Smart Earbuds akan menangkap suara di sekitar kamu.</div>
+          <div class="transcript-text" id="transcript-text" style="display:none;"></div>
+        </div>
+      </div>
+      <div class="live-sign-row" id="sign-row">
+        <span style="font-size:13px;color:var(--muted);font-style:italic;padding:8px;">Bahasa isyarat akan muncul di sini...</span>
+      </div>
+      <div class="live-controls">
+        <button class="lc-btn" onclick="copyTranscript()">📋 Salin</button>
+        <button class="lc-btn" onclick="saveTranscript()">💾 Simpan Riwayat</button>
+        <button class="lc-btn danger" onclick="clearTranscript()">🗑️ Hapus</button>
+      </div>
+    </div>
+    <div style="margin-top:24px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;">
+      <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:12px;">📋 Riwayat Live Transcription</div>
+      <div id="history-list">
+        <div style="padding:12px;background:rgba(255,255,255,.03);border-radius:8px;font-size:13px;color:var(--muted);">Belum ada riwayat. Mulai sesi transcription untuk menyimpan.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRES -->
+<div id="page-progres" class="page">
+  <div class="progres-wrap">
+    <div class="progres-header">
+      <h2>Progres Belajar</h2>
+      <p style="color:var(--muted);font-size:14px;">AI memantau pola belajarmu untuk menyesuaikan materi</p>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-block"><div class="sb-icon">📖</div><div class="sb-num">47</div><div class="sb-lbl">Kata Dipelajari</div></div>
+      <div class="stat-block"><div class="sb-icon">✅</div><div class="sb-num">89%</div><div class="sb-lbl">Akurasi Kuis</div></div>
+      <div class="stat-block"><div class="sb-icon">⏱️</div><div class="sb-num">12j</div><div class="sb-lbl">Waktu Belajar</div></div>
+      <div class="stat-block"><div class="sb-icon">🎯</div><div class="sb-num">3</div><div class="sb-lbl">Unit Selesai</div></div>
+    </div>
+    <div class="activity-row">
+      <div class="chart-box">
+        <div class="chart-title">Aktivitas 7 Hari Terakhir</div>
+        <div class="bar-chart">
+          <div class="bc-col"><div class="bc-bar" style="height:40%"></div><div class="bc-label">Sen</div></div>
+          <div class="bc-col"><div class="bc-bar" style="height:70%"></div><div class="bc-label">Sel</div></div>
+          <div class="bc-col"><div class="bc-bar" style="height:55%"></div><div class="bc-label">Rab</div></div>
+          <div class="bc-col"><div class="bc-bar" style="height:90%"></div><div class="bc-label">Kam</div></div>
+          <div class="bc-col"><div class="bc-bar" style="height:45%"></div><div class="bc-label">Jum</div></div>
+          <div class="bc-col"><div class="bc-bar" style="height:80%"></div><div class="bc-label">Sab</div></div>
+          <div class="bc-col"><div class="bc-bar" style="height:60%"></div><div class="bc-label">Min</div></div>
+        </div>
+      </div>
+      <div class="streak-box">
+        <div class="streak-fire">🔥</div>
+        <div class="streak-num">7</div>
+        <div class="streak-label">Hari Berturut-turut</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:8px;">Pertahankan semangatmu!</div>
+      </div>
+    </div>
+    <div class="section-label" style="margin-bottom:16px;">Gaya Belajar AI Analysis</div>
+    <div class="level-grid">
+      <div class="level-item">
+        <div class="li-header"><div class="li-icon" style="background:rgba(45,212,191,.12);">👁️</div><div><div class="li-name">Visual</div><div class="li-level">Dominan</div></div></div>
+        <div class="li-bar"><div class="li-fill" style="width:85%;background:linear-gradient(90deg,var(--teal),var(--blue));"></div></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px;">85% preferensi visual</div>
+      </div>
+      <div class="level-item">
+        <div class="li-header"><div class="li-icon" style="background:rgba(167,139,250,.12);">🤟</div><div><div class="li-name">Kinestetik</div><div class="li-level">Kuat</div></div></div>
+        <div class="li-bar"><div class="li-fill" style="width:68%;background:linear-gradient(90deg,var(--purple),var(--pink));"></div></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px;">68% respons isyarat</div>
+      </div>
+      <div class="level-item">
+        <div class="li-header"><div class="li-icon" style="background:rgba(251,191,36,.12);">📝</div><div><div class="li-name">Tekstual</div><div class="li-level">Sedang</div></div></div>
+        <div class="li-bar"><div class="li-fill" style="width:52%;background:linear-gradient(90deg,var(--amber),#f97316);"></div></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px;">52% membaca teks</div>
+      </div>
+      <div class="level-item">
+        <div class="li-header"><div class="li-icon" style="background:rgba(52,211,153,.12);">🎨</div><div><div class="li-name">Ilustrasi</div><div class="li-level">Berkembang</div></div></div>
+        <div class="li-bar"><div class="li-fill" style="width:40%;background:linear-gradient(90deg,var(--green),var(--teal));"></div></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px;">40% gambar kontekstual</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="vocab-modal" onclick="closeModal(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal(null)">✕</button>
+    <span class="modal-sign" id="m-sign">👋</span>
+    <div class="modal-word" id="m-word">Hello</div>
+    <div class="modal-ipa" id="m-ipa">/həˈloʊ/ · Sapaan</div>
+    <div class="modal-channels">
+      <div class="mc"><span class="mc-icon">🤟</span><div class="mc-label">Isyarat</div><div class="mc-val" id="m-gesture">Kibaskan tangan</div></div>
+      <div class="mc"><span class="mc-icon">👄</span><div class="mc-label">Bibir</div><div class="mc-val" id="m-lip">He-lo</div></div>
+      <div class="mc"><span class="mc-icon">🖼️</span><div class="mc-label">Konteks</div><div class="mc-val" id="m-context">Bertemu seseorang</div></div>
+      <div class="mc"><span class="mc-icon">🔊</span><div class="mc-label">Audio</div><div class="mc-val" style="color:var(--teal);">Tersedia</div></div>
+    </div>
+    <div class="modal-desc" id="m-desc"></div>
+    <div class="modal-actions">
+      <button class="btn-mark" id="mark-btn" onclick="markLearned()">⬜ Tandai Sudah Dipelajari</button>
+      <button class="btn-mark" onclick="closeModal(null)" style="flex:0;padding:10px 20px;">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const vocabData = [
+  {word:'Hello',sign:'👋',ipa:'/həˈloʊ/',cat:'Sapaan',catColor:'rgba(45,212,191,.12)',catTextColor:'var(--teal)',def:'Digunakan untuk menyapa seseorang.',gesture:'Kibaskan tangan',lip:'He-lo',context:'Bertemu seseorang',learned:true},
+  {word:'School',sign:'🏫',ipa:'/skuːl/',cat:'Tempat',catColor:'rgba(96,165,250,.12)',catTextColor:'var(--blue)',def:'Tempat untuk belajar dan mendapat pendidikan.',gesture:'Dua tangan membentuk atap',lip:'Sku-ul',context:'Gedung pendidikan',learned:true},
+  {word:'Book',sign:'📚',ipa:'/bʊk/',cat:'Benda',catColor:'rgba(167,139,250,.12)',catTextColor:'var(--purple)',def:'Kumpulan halaman berisi teks dan gambar.',gesture:'Buka-tutup telapak tangan',lip:'Bu-k',context:'Membaca di perpustakaan',learned:false},
+  {word:'Water',sign:'💧',ipa:'/ˈwɔːtər/',cat:'Benda',catColor:'rgba(167,139,250,.12)',catTextColor:'var(--purple)',def:'Cairan bening tidak berwarna, penting bagi kehidupan.',gesture:'Tiga jari menunjuk ke atas',lip:'Wo-ter',context:'Minum di sekolah',learned:true},
+  {word:'Happy',sign:'😊',ipa:'/ˈhæpi/',cat:'Perasaan',catColor:'rgba(251,191,36,.12)',catTextColor:'var(--amber)',def:'Merasa senang dan bahagia.',gesture:'Gosok dada melingkar ke atas',lip:'Ha-pi',context:'Ekspresi wajah senang',learned:false},
+  {word:'Family',sign:'👨‍👩‍👧',ipa:'/ˈfæmɪli/',cat:'Orang',catColor:'rgba(244,114,182,.12)',catTextColor:'var(--pink)',def:'Orang-orang yang tinggal bersama.',gesture:'Bentuk lingkaran dengan dua tangan',lip:'Fa-mi-li',context:'Foto keluarga',learned:true},
+  {word:'Teacher',sign:'👩‍🏫',ipa:'/ˈtiːtʃər/',cat:'Orang',catColor:'rgba(244,114,182,.12)',catTextColor:'var(--pink)',def:'Orang yang mengajar di sekolah.',gesture:'Jari telunjuk ke depan, lalu telapak ke bawah',lip:'Ti-cher',context:'Di dalam kelas',learned:false},
+  {word:'Friend',sign:'🤝',ipa:'/frend/',cat:'Orang',catColor:'rgba(244,114,182,.12)',catTextColor:'var(--pink)',def:'Orang yang kamu kenal dan percayai.',gesture:'Kaitkan dua jari telunjuk',lip:'Frend',context:'Bermain bersama',learned:false},
+  {word:'Eat',sign:'🍽️',ipa:'/iːt/',cat:'Kegiatan',catColor:'rgba(52,211,153,.12)',catTextColor:'var(--green)',def:'Memasukkan makanan ke mulut.',gesture:'Jari-jari ke arah mulut',lip:'I-t',context:'Waktu makan siang',learned:false},
+  {word:'Study',sign:'✏️',ipa:'/ˈstʌdi/',cat:'Kegiatan',catColor:'rgba(52,211,153,.12)',catTextColor:'var(--green)',def:'Belajar untuk memahami sesuatu.',gesture:'Buka telapak tangan, jari-jari bergerak',lip:'Sta-di',context:'Membaca buku pelajaran',learned:false},
+  {word:'Good',sign:'👍',ipa:'/ɡʊd/',cat:'Sifat',catColor:'rgba(45,212,191,.12)',catTextColor:'var(--teal)',def:'Berkualitas tinggi atau menyenangkan.',gesture:'Acungkan jempol',lip:'Gu-d',context:'Memberi penilaian',learned:false},
+  {word:'Thank You',sign:'🙏',ipa:'/θæŋk juː/',cat:'Sapaan',catColor:'rgba(45,212,191,.12)',catTextColor:'var(--teal)',def:'Ungkapan rasa terima kasih.',gesture:'Sentuh dagu, dorong ke depan',lip:'Thenk-yu',context:'Setelah dibantu seseorang',learned:false},
+];
+
+const quizData = [
+  {sign:'👋',question:'Apa arti dari isyarat ini?',options:['Hello','Book','Water','Happy'],answer:'Hello'},
+  {sign:'📚',question:'Isyarat ini menunjukkan kata apa?',options:['School','Book','Teacher','Study'],answer:'Book'},
+  {sign:'💧',question:'Isyarat ini berarti?',options:['Happy','Eat','Water','Good'],answer:'Water'},
+  {sign:'😊',question:'Apa kata Bahasa Inggris untuk isyarat ini?',options:['Sad','Happy','Angry','Tired'],answer:'Happy'},
+  {sign:'🏫',question:'Isyarat ini menunjukkan?',options:['Home','Hospital','School','Library'],answer:'School'},
+  {sign:'👨‍👩‍👧',question:'Isyarat ini berarti?',options:['Friend','Teacher','Family','Class'],answer:'Family'},
+  {sign:'👍',question:'Kata apa yang ditunjukkan isyarat ini?',options:['Bad','Good','Great','Nice'],answer:'Good'},
+  {sign:'🙏',question:'Apa arti dari isyarat ini?',options:['Sorry','Please','Thank You','Hello'],answer:'Thank You'},
+];
+
+let currentModal = null;
+let quizIndex = 0;
+let quizScore = 0;
+let quizAnswered = false;
+let micActive = false;
+let liveInterval = null;
+let transcriptHistory = [];
+let learnedWords = new Set(vocabData.filter(v=>v.learned).map(v=>v.word));
+
+function showPage(id, tabEl) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(tabEl) tabEl.classList.add('active');
+  if(id==='materi') renderVocab();
+  if(id==='latihan') initQuiz();
+}
+
+function demoWord(word, sign, def) {
+  document.getElementById('demo-word').textContent = word;
+  document.getElementById('demo-sign').textContent = sign;
+  document.querySelector('.word-def').textContent = def;
+}
+function toggleChannel(ch) {
+  document.getElementById('ch-'+ch).classList.toggle('on');
+}
+
+function renderVocab() {
+  const grid = document.getElementById('vocab-grid');
+  grid.innerHTML = '';
+  vocabData.forEach((v,i)=>{
+    const learned = learnedWords.has(v.word);
+    grid.innerHTML += `
+    <div class="vocab-card ${learned?'learned':''}" onclick="openModal(${i})">
+      <span class="vc-sign">${v.sign}</span>
+      <div class="vc-word">${v.word}</div>
+      <div class="vc-ipa">${v.ipa}</div>
+      <div class="vc-def">${v.def}</div>
+      <div class="vc-cats">
+        <span class="vc-cat" style="background:${v.catColor};color:${v.catTextColor};">${v.cat}</span>
+        ${learned?'<span class="vc-cat" style="background:rgba(52,211,153,.1);color:var(--green);">Dipelajari</span>':''}
+      </div>
+    </div>`;
+  });
+  const pct = Math.round(learnedWords.size/vocabData.length*100);
+  document.getElementById('materi-progress').style.width = pct+'%';
+}
+
+function setUnit(el, name) {
+  document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('unit-title').textContent = name;
+}
+
+function openModal(i) {
+  const v = vocabData[i];
+  currentModal = i;
+  document.getElementById('m-sign').textContent = v.sign;
+  document.getElementById('m-word').textContent = v.word;
+  document.getElementById('m-ipa').textContent = v.ipa + ' · ' + v.cat;
+  document.getElementById('m-gesture').textContent = v.gesture;
+  document.getElementById('m-lip').textContent = v.lip;
+  document.getElementById('m-context').textContent = v.context;
+  document.getElementById('m-desc').textContent = v.def;
+  const markBtn = document.getElementById('mark-btn');
+  if(learnedWords.has(v.word)){
+    markBtn.textContent = '✅ Sudah Dipelajari';
+    markBtn.style.color = 'var(--green)';
+    markBtn.style.borderColor = 'rgba(52,211,153,.3)';
+  } else {
+    markBtn.textContent = '⬜ Tandai Sudah Dipelajari';
+    markBtn.style.color = '';
+    markBtn.style.borderColor = '';
+  }
+  document.getElementById('vocab-modal').classList.add('open');
+}
+function closeModal(e) {
+  if(e && e.target !== document.getElementById('vocab-modal')) return;
+  document.getElementById('vocab-modal').classList.remove('open');
+}
+function markLearned() {
+  if(currentModal===null) return;
+  const word = vocabData[currentModal].word;
+  if(learnedWords.has(word)) learnedWords.delete(word);
+  else learnedWords.add(word);
+  closeModal(null);
+  renderVocab();
+}
+
+function initQuiz() {
+  quizIndex = 0; quizScore = 0;
+  document.getElementById('score-panel').classList.remove('show');
+  document.getElementById('quiz-card').style.display = 'block';
+  renderQuiz();
+}
+function renderQuiz() {
+  const q = quizData[quizIndex];
+  quizAnswered = false;
+  document.getElementById('quiz-progress-fill').style.width = (quizIndex/quizData.length*100)+'%';
+  document.getElementById('quiz-progress-label').textContent = quizIndex+' / '+quizData.length;
+  document.getElementById('quiz-card').innerHTML = `
+    <span class="quiz-type-badge" style="background:var(--teal-dim);color:var(--teal);">Tebak Kata</span>
+    <span class="quiz-sign-display">${q.sign}</span>
+    <div class="quiz-q">${q.question}</div>
+    <div class="quiz-hint">Pilih jawaban yang benar berdasarkan isyarat di atas</div>
+    <div class="options-grid">
+      ${q.options.map(o=>`<button class="opt-btn" onclick="answerQuiz('${o}')">${o}</button>`).join('')}
+    </div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+    <button class="quiz-next" id="quiz-next" onclick="nextQuiz()">Lanjut →</button>
+  `;
+}
+function answerQuiz(ans) {
+  if(quizAnswered) return;
+  quizAnswered = true;
+  const q = quizData[quizIndex];
+  const correct = ans === q.answer;
+  if(correct) quizScore++;
+  document.querySelectorAll('.opt-btn').forEach(b=>{
+    b.disabled = true;
+    if(b.textContent===q.answer) b.classList.add('correct');
+    if(b.textContent===ans && !correct) b.classList.add('wrong');
+  });
+  const fb = document.getElementById('quiz-feedback');
+  fb.className = 'quiz-feedback show '+(correct?'ok':'ko');
+  fb.textContent = correct ? '✅ Benar! '+q.answer+' adalah kata yang tepat.' : '❌ Kurang tepat. Jawaban benar: '+q.answer;
+  document.getElementById('quiz-next').classList.add('show');
+}
+function nextQuiz() {
+  quizIndex++;
+  if(quizIndex >= quizData.length) {
+    document.getElementById('quiz-card').style.display = 'none';
+    const pct = Math.round(quizScore/quizData.length*100);
+    document.getElementById('score-num').textContent = quizScore;
+    document.getElementById('score-correct').textContent = quizScore;
+    document.getElementById('score-wrong').textContent = quizData.length-quizScore;
+    document.getElementById('score-pct').textContent = pct+'%';
+    document.getElementById('score-panel').classList.add('show');
+    document.getElementById('quiz-progress-fill').style.width = '100%';
+    document.getElementById('quiz-progress-label').textContent = quizData.length+' / '+quizData.length;
+  } else { renderQuiz(); }
+}
+function restartQuiz() {
+  document.getElementById('quiz-card').style.display = 'block';
+  initQuiz();
+}
+
+const liveLines = [
+  ["Good","morning","students","please","open","your","book"],
+  ["Today","we","will","learn","about","family","members"],
+  ["Can","you","read","the","first","sentence","please"],
+  ["Very","good","now","let","us","practice","together"],
+  ["Please","repeat","after","me","hello","how","are","you"],
+];
+const signMap = {
+  'Good':'👍','morning':'🌅','students':'👩‍🎓','please':'🙏','open':'📂','your':'👉','book':'📚',
+  'Today':'📅','we':'👥','will':'💪','learn':'✏️','about':'💬','family':'👨‍👩‍👧','members':'👨‍👩‍👧‍👦',
+  'Can':'❓','you':'👉','read':'👓','the':'📌','first':'🥇','sentence':'📝',
+  'Very':'⭐','let':'🤝','us':'👥','practice':'🔄','together':'🤗',
+  'repeat':'🔁','after':'⏭️','me':'👤','hello':'👋','how':'🤷','are':'✅',
+};
+let liveLineIdx = 0, liveWordIdx = 0;
+
+function toggleMic() {
+  micActive = !micActive;
+  const btn = document.getElementById('mic-btn');
+  const status = document.getElementById('live-status');
+  const haptic = document.getElementById('haptic-dot');
+  if(micActive) {
+    btn.className = 'live-mic-btn on'; btn.textContent = '⏹️';
+    status.textContent = '🔴 Merekam...'; status.style.color = '#f87171';
+    haptic.style.background = 'var(--green)'; haptic.style.boxShadow = '0 0 6px rgba(52,211,153,.5)';
+    document.getElementById('transcript-placeholder').style.display='none';
+    document.getElementById('transcript-text').style.display='block';
+    liveLineIdx=0; liveWordIdx=0;
+    document.getElementById('transcript-text').innerHTML='';
+    document.getElementById('sign-row').innerHTML='<span style="font-size:13px;color:var(--muted);font-style:italic;padding:8px;">Mendengarkan...</span>';
+    liveInterval = setInterval(()=>{
+      if(liveLineIdx >= liveLines.length){ liveLineIdx=0; document.getElementById('transcript-text').innerHTML+='<br>'; }
+      const words = liveLines[liveLineIdx];
+      if(liveWordIdx < words.length){ addTranscriptWord(words[liveWordIdx]); liveWordIdx++; }
+      else { liveLineIdx++; liveWordIdx=0; document.getElementById('transcript-text').innerHTML+=' '; }
+    }, 450);
+  } else {
+    btn.className = 'live-mic-btn off'; btn.textContent = '🎙️';
+    status.textContent = 'Dihentikan'; status.style.color = 'var(--muted)';
+    haptic.style.background = 'var(--muted)'; haptic.style.boxShadow = '';
+    clearInterval(liveInterval);
+    const text = document.getElementById('transcript-text').textContent.trim();
+    if(text){ transcriptHistory.push({time:new Date().toLocaleTimeString('id-ID'),text:text.slice(0,80)+'...'}); renderHistory(); }
+  }
+}
+
+function addTranscriptWord(word) {
+  const container = document.getElementById('transcript-text');
+  const span = document.createElement('span');
+  span.className = 'transcript-word highlight';
+  span.textContent = word + ' ';
+  container.appendChild(span);
+  setTimeout(()=>span.classList.remove('highlight'), 600);
+  const signRow = document.getElementById('sign-row');
+  if(signRow.querySelector('span[style]')) signRow.innerHTML='';
+  const chip = document.createElement('div');
+  chip.className = 'sign-chip';
+  chip.innerHTML = `<span class="sc-sign">${signMap[word]||'🤟'}</span><span class="sc-word">${word}</span>`;
+  signRow.appendChild(chip);
+  signRow.scrollLeft = signRow.scrollWidth;
+  if(signRow.children.length > 12) signRow.removeChild(signRow.firstChild);
+}
+
+function copyTranscript() {
+  const text = document.getElementById('transcript-text').textContent;
+  if(!text.trim()) return;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn = event.target; btn.textContent='✅ Tersalin!';
+    setTimeout(()=>btn.textContent='📋 Salin',2000);
+  });
+}
+function saveTranscript() { if(micActive) toggleMic(); }
+function clearTranscript() {
+  document.getElementById('transcript-text').textContent='';
+  document.getElementById('sign-row').innerHTML='<span style="font-size:13px;color:var(--muted);font-style:italic;padding:8px;">Bahasa isyarat akan muncul di sini...</span>';
+  if(micActive) toggleMic();
+}
+function renderHistory() {
+  document.getElementById('history-list').innerHTML = transcriptHistory.map(h=>`
+    <div style="padding:12px;background:rgba(255,255,255,.03);border-radius:8px;border-left:2px solid var(--teal);">
+      <div style="font-size:11px;color:var(--teal);margin-bottom:4px;">${h.time}</div>
+      <div style="font-size:13px;color:var(--muted);">${h.text}</div>
+    </div>`).join('');
+}
+
+renderVocab();
+initQuiz();
+</script>
+</body>
+</html>
